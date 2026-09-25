@@ -29,7 +29,7 @@ interface NavItem {
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
-  const unreadCount = useNotificationStore(s => s.unreadCount());
+  const unreadCount = useNotificationStore((s) => s.unreadCount());
 
   const navItems: NavItem[] = [
     { label: 'Visão Geral', path: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -51,13 +51,13 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen sticky top-0 bg-[#081322]/90 backdrop-blur-xl border-r border-white/[0.07] z-30 select-none">
+    <aside className="hidden lg:flex flex-col w-[260px] h-screen sticky top-0 bg-[#081322]/95 backdrop-blur-2xl border-r border-white/[0.06] z-30 select-none">
       {/* Brand Header */}
       <div className="p-6 border-b border-white/[0.06]">
         <Logo size="md" showTagline={true} />
       </div>
 
-      {/* Main Navigation Items */}
+      {/* Navegação Principal */}
       <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-1">
         <div className="text-[10px] font-mono font-medium tracking-wider text-text-tertiary uppercase px-3 mb-2">
           Menu Principal
@@ -68,10 +68,10 @@ export const Sidebar: React.FC = () => {
             key={item.path}
             to={item.path}
             className={({ isActive }) => `
-              flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group
+              flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 group relative
               ${isActive 
-                ? 'bg-brand-blue/15 text-brand-cyan border border-brand-blue/30 shadow-sm' 
-                : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.04]'}
+                ? 'bg-brand-blue/[0.12] text-white border border-brand-blue/30 shadow-sm before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:bg-brand-blue before:rounded-r' 
+                : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.03]'}
             `}
           >
             <div className="flex items-center gap-3">
@@ -88,18 +88,18 @@ export const Sidebar: React.FC = () => {
           </NavLink>
         ))}
 
-        {/* Gestão Administrativa Link */}
-        <div className="pt-4 mt-4 border-t border-white/[0.06]">
+        {/* Separador Institucional */}
+        <div className="pt-3 mt-3 border-t border-white/[0.06]">
           <div className="text-[10px] font-mono font-medium tracking-wider text-text-tertiary uppercase px-3 mb-2">
             Institucional
           </div>
           <NavLink
             to="/admin"
             className={({ isActive }) => `
-              flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group
+              flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 group relative
               ${isActive 
-                ? 'bg-brand-blue/15 text-brand-cyan border border-brand-blue/30' 
-                : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.04]'}
+                ? 'bg-brand-blue/[0.12] text-white border border-brand-blue/30 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:bg-brand-blue before:rounded-r' 
+                : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.03]'}
             `}
           >
             <div className="flex items-center gap-3">
@@ -113,9 +113,9 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* User Profile Card Footer */}
-      <div className="p-3.5 border-t border-white/[0.06] bg-[#07111F]/60">
-        <div className="flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.04] transition-colors">
+      {/* Conta do Usuário no Rodapé */}
+      <div className="p-3.5 border-t border-white/[0.06] bg-[#07111F]/70">
+        <div className="flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.03] transition-colors">
           <div 
             onClick={() => navigate('/profile')}
             className="flex items-center gap-2.5 cursor-pointer min-w-0 flex-1"

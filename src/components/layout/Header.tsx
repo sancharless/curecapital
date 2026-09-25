@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Moon, Sun, Check, ExternalLink } from 'lucide-react';
+import { Search, Bell, ExternalLink, Moon } from 'lucide-react';
 import { APP_CONFIG } from '../../config/app';
 import { Avatar } from '../ui/Avatar';
-import { Badge } from '../ui/Badge';
+import { Logo } from '../ui/Logo';
+import { LiveIndicator } from '../ui/LiveIndicator';
 import { useNotificationStore } from '../../store/notificationStore';
 
 export const Header: React.FC = () => {
@@ -13,9 +14,9 @@ export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const notifications = useNotificationStore(s => s.notifications);
-  const unreadCount = useNotificationStore(s => s.unreadCount());
-  const markAllAsRead = useNotificationStore(s => s.markAllAsRead);
+  const notifications = useNotificationStore((s) => s.notifications);
+  const unreadCount = useNotificationStore((s) => s.unreadCount());
+  const markAllAsRead = useNotificationStore((s) => s.markAllAsRead);
 
   // Fecha dropdown ao clicar fora
   useEffect(() => {
@@ -29,71 +30,53 @@ export const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 w-full bg-[#07111F]/85 backdrop-blur-xl border-b border-white/[0.06] px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-      {/* Esquerda: Saudação e Subtexto */}
+    <header className="sticky top-0 z-30 w-full bg-[#07111F]/90 backdrop-blur-xl border-b border-white/[0.06] px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+      {/* Esquerda: No Mobile exibe Logo pequena + Saudação. No Desktop exibe Saudação + Subtexto */}
       <div className="flex items-center gap-3 min-w-0">
-        <div className="lg:hidden">
-          <Avatar 
-            name={APP_CONFIG.defaultUser.name} 
-            src={APP_CONFIG.defaultUser.avatar}
-            size="sm"
-            status="online"
-            className="cursor-pointer"
-          />
+        <div className="lg:hidden shrink-0">
+          <Logo size="sm" showTagline={false} />
         </div>
+
         <div className="truncate">
-          <div className="flex items-center gap-2">
-            <h1 className="text-sm sm:text-base font-semibold text-text-primary tracking-tight truncate">
-              {APP_CONFIG.defaultUser.greeting}
-            </h1>
-            <span className="hidden sm:inline-flex">
-              <Badge variant="cyan" size="sm">
-                {APP_CONFIG.defaultUser.tier}
-              </Badge>
-            </span>
-          </div>
+          <h1 className="text-sm sm:text-base font-semibold text-text-primary tracking-tight truncate">
+            {APP_CONFIG.defaultUser.greeting}
+          </h1>
           <p className="text-[11px] sm:text-xs text-text-tertiary truncate">
-            Acompanhe seu patrimônio digital.
+            Acompanhe sua evolução patrimonial em tempo real.
           </p>
         </div>
       </div>
 
-      {/* Direita: Ações, Status do Sistema, Notificações e Perfil */}
+      {/* Direita: Indicador de Sistema Operacional, Busca, Notificações e Perfil */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Status Operacional com indicador verde pulsante discreto */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-xs text-text-secondary">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-positive opacity-60"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-positive"></span>
-          </span>
-          <span className="font-mono text-[11px] text-text-secondary">
-            {APP_CONFIG.systemStatus.label}
-          </span>
+        {/* Indicador discreto: ● Sistema operacional (Item 3) */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-xs">
+          <LiveIndicator status="live" label="Sistema operacional" />
         </div>
 
-        {/* Botão de Pesquisa */}
+        {/* Busca Rápida */}
         <div className="relative">
           <button
             onClick={() => setIsSearchOpen(!isSearchOpen)}
             aria-label="Pesquisar ativos e transações"
-            className="p-2 text-text-secondary hover:text-text-primary rounded-xl hover:bg-white/[0.05] transition-colors cursor-pointer"
+            className="p-2 text-text-secondary hover:text-text-primary rounded-xl hover:bg-white/[0.04] transition-colors cursor-pointer"
           >
             <Search className="w-4 h-4" />
           </button>
 
           {isSearchOpen && (
-            <div className="absolute right-0 top-12 w-72 sm:w-80 p-2 bg-card-elevated border border-white/10 rounded-xl shadow-financial-elevated z-30">
+            <div className="absolute right-0 top-12 w-72 sm:w-80 p-2.5 bg-[#0C1A2E]/98 backdrop-blur-2xl border border-white/10 rounded-xl shadow-financial-elevated z-40">
               <input
                 type="text"
-                placeholder="Buscar ativo, hash, ID..."
+                placeholder="Buscar ativo, comprovante, hash..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
-                className="w-full bg-[#081322] border border-white/10 rounded-lg px-3 py-2 text-xs text-text-primary placeholder:text-text-tertiary outline-none focus:border-brand-blue"
+                className="w-full bg-[#07111F] border border-white/10 rounded-lg px-3 py-2 text-xs text-text-primary placeholder:text-text-tertiary outline-none focus:border-brand-blue"
               />
               <div className="mt-2 text-[10px] text-text-tertiary px-1 flex justify-between">
                 <span>Atalhos: BTC, LTC, Rendimentos</span>
-                <button 
+                <button
                   onClick={() => setIsSearchOpen(false)}
                   className="text-text-secondary hover:underline cursor-pointer"
                 >
@@ -104,12 +87,12 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* Dropdown de Notificações */}
+        {/* Notificações Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setIsNotifOpen(!isNotifOpen)}
-            aria-label="Notificações do sistema"
-            className="relative p-2 text-text-secondary hover:text-text-primary rounded-xl hover:bg-white/[0.05] transition-colors cursor-pointer"
+            aria-label="Central de notificações"
+            className="relative p-2 text-text-secondary hover:text-text-primary rounded-xl hover:bg-white/[0.04] transition-colors cursor-pointer"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -118,12 +101,12 @@ export const Header: React.FC = () => {
           </button>
 
           {isNotifOpen && (
-            <div className="absolute right-0 top-12 w-80 sm:w-96 bg-card-elevated border border-white/10 rounded-card-md shadow-financial-elevated overflow-hidden z-30">
+            <div className="absolute right-0 top-12 w-80 sm:w-96 bg-[#0C1A2E]/98 backdrop-blur-2xl border border-white/10 rounded-xl shadow-financial-elevated overflow-hidden z-40">
               <div className="p-3.5 border-b border-white/[0.06] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-text-primary">Notificações</span>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] bg-brand-blue/30 text-brand-cyan px-1.5 py-0.2 rounded-full font-mono">
+                    <span className="text-[10px] bg-brand-blue/25 text-brand-cyan px-2 py-0.2 rounded-full font-mono">
                       {unreadCount} novas
                     </span>
                   )}
@@ -133,14 +116,14 @@ export const Header: React.FC = () => {
                     onClick={markAllAsRead}
                     className="text-[11px] text-brand-cyan hover:underline cursor-pointer"
                   >
-                    Marcar todas lidas
+                    Marcar lidas
                   </button>
                 )}
               </div>
 
               <div className="max-h-72 overflow-y-auto divide-y divide-white/[0.04]">
                 {notifications.slice(0, 5).map((n) => (
-                  <div 
+                  <div
                     key={n.id}
                     className={`p-3 text-left hover:bg-white/[0.02] transition-colors ${!n.read ? 'bg-white/[0.02]' : ''}`}
                   >
@@ -163,7 +146,7 @@ export const Header: React.FC = () => {
                   }}
                   className="text-xs text-brand-cyan hover:text-brand-blue-hover font-medium flex items-center justify-center gap-1.5 w-full py-1 cursor-pointer"
                 >
-                  <span>Ver central de notificações</span>
+                  <span>Ver todas</span>
                   <ExternalLink className="w-3 h-3" />
                 </button>
               </div>
@@ -171,21 +154,13 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* Alternância Dark Mode (placeholder com indicador visual sofisticado) */}
-        <button
-          title="Modo escuro ativo (Dark Mode padrão)"
-          className="hidden sm:flex p-2 text-text-secondary hover:text-text-primary rounded-xl hover:bg-white/[0.05] transition-colors cursor-pointer"
-        >
-          <Moon className="w-4 h-4 text-brand-cyan" />
-        </button>
-
-        {/* Perfil no Desktop */}
-        <div 
+        {/* Avatar do Usuário */}
+        <div
           onClick={() => navigate('/profile')}
-          className="hidden lg:flex items-center gap-2.5 pl-2 border-l border-white/[0.08] cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer"
         >
-          <Avatar 
-            name={APP_CONFIG.defaultUser.name} 
+          <Avatar
+            name={APP_CONFIG.defaultUser.name}
             src={APP_CONFIG.defaultUser.avatar}
             size="sm"
             status="online"

@@ -1,29 +1,34 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
+import { LiveIndicator } from '../ui/LiveIndicator';
 import { TimeframeFilter, PortfolioHistoryPoint } from '../../types';
-import { useMarketData } from '../../providers/MarketDataProvider';
+import { usePortfolio } from '../../hooks/usePortfolio';
 import { usePrivacyStore } from '../../store/privacyStore';
+import { formatBRL } from '../../utils/formatters';
 
 export const PortfolioChart: React.FC = () => {
-  const { 
-    chartData, 
-    activeTimeframe, 
-    setActiveTimeframe, 
-    portfolioTotalBrl, 
+  const {
+    chartData,
+    activeTimeframe,
+    setActiveTimeframe,
+    totalBalance,
     monthlyGrowthPercent,
-    isLive 
-  } = useMarketData();
+    isLive,
+    quotes,
+  } = usePortfolio();
 
-  const formatCurrency = usePrivacyStore(s => s.formatCurrency);
-  const hideValues = usePrivacyStore(s => s.hideValues);
+  const hideValues = usePrivacyStore((s) => s.hideValues);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 320 });
+  const [dimensions, setDimensions] = useState({ width: 800, height: 340 });
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [isPathAnimated, setIsPathAnimated] = useState(false);
+  const [isLineDrawn, setIsLineDrawn] = useState(false);
+
+  // Controle inteligente de gesture touch (horizontal vs vertical)
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isHorizontalGesture = useRef<boolean | null>(null);
 
   const filters: { id: TimeframeFilter; label: string }[] = [
     { id: '24H', label: '24H' },
@@ -35,18 +40,18 @@ export const PortfolioChart: React.FC = () => {
     { id: 'ALL', label: 'Tudo' },
   ];
 
-  // Responsividade dinâmica de altura e largura (Desktop 340px, Tablet 300px, Mobile 240px, iPhone pequeno 210px)
+  // Responsividade dinâmica contínua (Desktop 340px, Tablet 300px, Mobile 240px, iPhone pequeno 210px)
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
         const width = containerRef.current.clientWidth;
         let height = 340;
         if (width < 380) {
-          height = 210; // iPhone pequeno / SE
+          height = 210; // iPhone SE
         } else if (width < 640) {
-          height = 240; // Mobile padrão (390-430px)
+          height = 245; // iPhone 14/15/16 Pro
         } else if (width < 1024) {
-          height = 300; // Tablet
+          height = 290; // Tablet
         }
         setDimensions({ width, height });
       }
@@ -57,27 +62,26 @@ export const PortfolioChart: React.FC = () => {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Animação de desenho da linha (800ms a 1200ms) ao carregar ou trocar período
+  // Animação de desenho da linha (900ms da esquerda para a direita) ao trocar de período
   useEffect(() => {
-    setIsPathAnimated(false);
+    setIsLineDrawn(false);
     const timer = setTimeout(() => {
-      setIsPathAnimated(true);
-    }, 50);
+      setIsLineDrawn(true);
+    }, 40);
     return () => clearTimeout(timer);
   }, [activeTimeframe]);
 
-  // Cálculos matemáticos do gráfico
   const data = chartData && chartData.length > 0 ? chartData : [];
-  const padding = { top: 20, right: 16, bottom: 30, left: 16 };
+  const padding = { top: 24, right: 18, bottom: 28, left: 18 };
   const graphWidth = Math.max(dimensions.width - padding.left - padding.right, 100);
   const graphHeight = Math.max(dimensions.height - padding.top - padding.bottom, 80);
 
-  const values = data.map(d => d.totalBalanceBrl);
+  const values = data.map((d) => d.totalBalanceBrl);
   const minValue = values.length > 0 ? Math.min(...values) * 0.996 : 50000;
   const maxValue = values.length > 0 ? Math.max(...values) * 1.004 : 53000;
   const valueRange = Math.max(maxValue - minValue, 1);
 
-  // Mapeamento de coordenadas (X, Y)
+  // Mapeamento matemático preciso dos pontos (X, Y)
   const points = useMemo(() => {
     if (data.length === 0) return [];
     return data.map((d, index) => {
@@ -88,7 +92,7 @@ export const PortfolioChart: React.FC = () => {
     });
   }, [data, minValue, valueRange, graphWidth, graphHeight, padding.left, padding.top]);
 
-  // Caminho da linha suave (Curva de Bézier ou Catmull-Rom simplificada)
+  // Curva suave sem distorções financeiras irreais
   const linePath = useMemo(() => {
     if (points.length === 0) return '';
     if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
@@ -110,7 +114,7 @@ export const PortfolioChart: React.FC = () => {
     return path;
   }, [points]);
 
-  // Caminho da área sob a curva com gradiente
+  // Área preenchida com gradiente sob a linha
   const areaPath = useMemo(() => {
     if (points.length === 0) return '';
     const bottomY = padding.top + graphHeight;
@@ -119,26 +123,27 @@ export const PortfolioChart: React.FC = () => {
     return `${linePath} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
   }, [linePath, points, padding.top, graphHeight]);
 
-  // Variação é positiva no período?
   const isPositiveGrowth = points.length >= 2 
     ? points[points.length - 1].data.totalBalanceBrl >= points[0].data.totalBalanceBrl 
     : true;
 
   const strokeColor = isPositiveGrowth ? '#19C37D' : '#EF4444';
-  const gradientId = isPositiveGrowth ? 'portfolio-green-grad' : 'portfolio-red-grad';
+  const gradientId = isPositiveGrowth ? 'fase2-green-grad' : 'fase2-red-grad';
 
-  // Ponto atualmente inspecionado
+  // Ponto atualmente selecionado pelo crosshair ou último ponto do gráfico
   const currentPoint = activeIndex !== null && points[activeIndex] 
     ? points[activeIndex] 
     : points[points.length - 1];
 
-  // Manipulação de toque sem travar o scroll vertical (Item 15)
+  // Último ponto para exibir o ponto ativo com pulse sutil
+  const lastPoint = points.length > 0 ? points[points.length - 1] : null;
+
+  // Interação inteligente de ponteiro / touch
   const handlePointerInteraction = (clientX: number) => {
     if (!svgRef.current || points.length === 0) return;
     const rect = svgRef.current.getBoundingClientRect();
     const relativeX = clientX - rect.left;
 
-    // Acha o ponto mais próximo
     let closestIndex = 0;
     let minDistance = Infinity;
 
@@ -154,48 +159,58 @@ export const PortfolioChart: React.FC = () => {
     setIsHovered(true);
   };
 
-  const onMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    handlePointerInteraction(e.clientX);
-  };
-
-  const onMouseLeave = () => {
-    setIsHovered(false);
-    setActiveIndex(null);
-  };
-
-  const onTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
+  const handleTouchStart = (e: React.TouchEvent<SVGSVGElement>) => {
     if (e.touches.length > 0) {
-      handlePointerInteraction(e.touches[0].clientX);
+      touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      isHorizontalGesture.current = null;
     }
   };
 
-  const onTouchEnd = () => {
+  const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
+    if (!touchStartPos.current || e.touches.length === 0) return;
+
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const diffX = Math.abs(currentX - touchStartPos.current.x);
+    const diffY = Math.abs(currentY - touchStartPos.current.y);
+
+    if (isHorizontalGesture.current === null && (diffX > 6 || diffY > 6)) {
+      isHorizontalGesture.current = diffX > diffY;
+    }
+
+    // Se o gesto for horizontal, atualiza a inspeção do gráfico
+    if (isHorizontalGesture.current === true) {
+      handlePointerInteraction(currentX);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartPos.current = null;
+    isHorizontalGesture.current = null;
     setIsHovered(false);
     setActiveIndex(null);
   };
 
   return (
-    <Card variant="glass" radius="lg" className="flex flex-col gap-4 relative">
-      {/* Top Header do Gráfico: Título, Filtros e Indicador Ao Vivo */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+    <Card variant="glass" radius="lg" className="flex flex-col gap-4 relative overflow-hidden">
+      {/* Header do Gráfico */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h3 className="text-sm font-semibold text-text-primary tracking-tight">
-              Evolução do Patrimônio
+            <h3 className="text-sm sm:text-base font-semibold text-text-primary tracking-tight">
+              Evolução do patrimônio
             </h3>
             {isLive && (
-              <Badge variant="live" size="sm">
-                AO VIVO
-              </Badge>
+              <LiveIndicator status="live" label="● AO VIVO" className="ml-1" />
             )}
           </div>
           <p className="text-xs text-text-tertiary mt-0.5">
-            Rentabilidade calculada sobre alocação líquida em BTC, LTC e custódia BRL
+            Histórico da sua posição consolidada.
           </p>
         </div>
 
-        {/* Filtros de Período (24H, 7D, 30D, 3M, 6M, 1A, Tudo) */}
-        <div className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none">
+        {/* Filtros de Período (Item 11 e 20) com background #162A46 quando ativo */}
+        <div className="flex items-center gap-1 overflow-x-auto py-0.5 scrollbar-none">
           {filters.map((f) => {
             const isActive = f.id === activeTimeframe;
             return (
@@ -205,8 +220,8 @@ export const PortfolioChart: React.FC = () => {
                 className={`
                   px-2.5 py-1 text-xs font-mono font-medium rounded-lg transition-all duration-150 shrink-0 cursor-pointer select-none
                   ${isActive 
-                    ? 'bg-brand-blue text-white shadow-glow-blue/50' 
-                    : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.05]'}
+                    ? 'bg-[#162A46] text-white border border-brand-cyan/20 shadow-sm font-semibold' 
+                    : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.04]'}
                 `}
               >
                 {f.label}
@@ -216,15 +231,15 @@ export const PortfolioChart: React.FC = () => {
         </div>
       </div>
 
-      {/* Snapshot do Ponto Selecionado / Atual */}
+      {/* Snapshot do Valor em Foco */}
       <div className="flex items-baseline justify-between px-1">
-        <div className="flex items-baseline gap-2">
-          <span className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary tabular-numbers">
-            {formatCurrency(currentPoint ? currentPoint.data.totalBalanceBrl : portfolioTotalBrl)}
+        <div className="flex items-baseline gap-2.5">
+          <span className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary tabular-nums">
+            {formatBRL(currentPoint ? currentPoint.data.totalBalanceBrl : totalBalance, hideValues)}
           </span>
-          <span className={`text-xs font-semibold ${isPositiveGrowth ? 'text-positive' : 'text-negative'}`}>
+          <span className={`text-xs font-semibold font-mono ${isPositiveGrowth ? 'text-positive' : 'text-negative'}`}>
             {currentPoint && currentPoint.data.profitPercentage >= 0 ? '+' : ''}
-            {currentPoint ? currentPoint.data.profitPercentage.toFixed(2) : monthlyGrowthPercent}%
+            {currentPoint ? currentPoint.data.profitPercentage.toFixed(2) : monthlyGrowthPercent.toFixed(2)}%
           </span>
         </div>
 
@@ -233,8 +248,8 @@ export const PortfolioChart: React.FC = () => {
         </div>
       </div>
 
-      {/* Container SVG do Gráfico Interativo com touch-action: pan-y (Item 15) */}
-      <div 
+      {/* Container SVG com touch-action: pan-y (Item 16 e 96) */}
+      <div
         ref={containerRef}
         className="w-full relative select-none"
         style={{ height: `${dimensions.height}px`, touchAction: 'pan-y' }}
@@ -244,27 +259,26 @@ export const PortfolioChart: React.FC = () => {
           width={dimensions.width}
           height={dimensions.height}
           className="w-full h-full overflow-visible cursor-crosshair"
-          onMouseMove={onMouseMove}
-          onMouseLeave={onMouseLeave}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
+          onMouseMove={(e) => handlePointerInteraction(e.clientX)}
+          onMouseLeave={() => { setIsHovered(false); setActiveIndex(null); }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <defs>
-            {/* Gradiente Verde de Crescimento */}
-            <linearGradient id="portfolio-green-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#19C37D" stopOpacity="0.25" />
-              <stop offset="60%" stopColor="#19C37D" stopOpacity="0.05" />
+            <linearGradient id="fase2-green-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#19C37D" stopOpacity="0.22" />
+              <stop offset="65%" stopColor="#19C37D" stopOpacity="0.04" />
               <stop offset="100%" stopColor="#19C37D" stopOpacity="0.00" />
             </linearGradient>
 
-            {/* Gradiente Vermelho se negativo */}
-            <linearGradient id="portfolio-red-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#EF4444" stopOpacity="0.25" />
+            <linearGradient id="fase2-red-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#EF4444" stopOpacity="0.20" />
               <stop offset="100%" stopColor="#EF4444" stopOpacity="0.00" />
             </linearGradient>
           </defs>
 
-          {/* Linhas de Grade Horizontais Discretas */}
+          {/* Grid horizontal com opacidade mínima (Item 12) */}
           {[0.25, 0.5, 0.75].map((pct, i) => {
             const yPos = padding.top + graphHeight * pct;
             return (
@@ -274,13 +288,13 @@ export const PortfolioChart: React.FC = () => {
                 y1={yPos}
                 x2={dimensions.width - padding.right}
                 y2={yPos}
-                stroke="rgba(255, 255, 255, 0.04)"
-                strokeDasharray="4 4"
+                stroke="rgba(255, 255, 255, 0.03)"
+                strokeDasharray="3 3"
               />
             );
           })}
 
-          {/* Área com Preenchimento Gradual */}
+          {/* Área com gradiente suave */}
           {areaPath && (
             <path
               d={areaPath}
@@ -289,95 +303,111 @@ export const PortfolioChart: React.FC = () => {
             />
           )}
 
-          {/* Linha Principal com Animação Inicial Suave (800ms a 1200ms) */}
+          {/* Linha Principal de 2px com Animação de Entrada de 900ms (Item 12 e 14) */}
           {linePath && (
             <path
               d={linePath}
               fill="none"
               stroke={strokeColor}
-              strokeWidth="2.5"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
               style={{
-                strokeDasharray: isPathAnimated ? 'none' : '2000',
-                strokeDashoffset: isPathAnimated ? '0' : '2000',
-                transition: isPathAnimated ? 'none' : 'stroke-dashoffset 1000ms cubic-bezier(0.16, 1, 0.3, 1)',
+                strokeDasharray: isLineDrawn ? 'none' : '2200',
+                strokeDashoffset: isLineDrawn ? '0' : '2200',
+                transition: isLineDrawn ? 'none' : 'stroke-dashoffset 900ms cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             />
           )}
 
-          {/* Crosshair Vertical e Ponto Ativo ao passar o mouse ou tocar */}
+          {/* Ponto Ativo no Último Valor com Pulse Suave (5px com halo 12px - Item 17) */}
+          {lastPoint && !isHovered && (
+            <g transform={`translate(${lastPoint.x}, ${lastPoint.y})`}>
+              <circle
+                r="6"
+                className="animate-ping fill-positive/30"
+              />
+              <circle
+                r="3"
+                className="fill-positive"
+              />
+              <circle
+                r="1.5"
+                className="fill-white"
+              />
+            </g>
+          )}
+
+          {/* Crosshair Vertical e Ponto Ativo em Hover / Touch (Item 15) */}
           {isHovered && currentPoint && (
             <>
-              {/* Linha Vertical Crosshair */}
               <line
                 x1={currentPoint.x}
                 y1={padding.top}
                 x2={currentPoint.x}
                 y2={padding.top + graphHeight}
-                stroke="rgba(255, 255, 255, 0.25)"
+                stroke="rgba(255, 255, 255, 0.22)"
                 strokeWidth="1"
                 strokeDasharray="3 3"
               />
-
-              {/* Ponto iluminado na curva */}
               <circle
                 cx={currentPoint.x}
                 cy={currentPoint.y}
-                r="6"
+                r="5"
                 fill="#07111F"
                 stroke={strokeColor}
-                strokeWidth="2.5"
-                className="drop-shadow-[0_0_8px_rgba(25,195,125,0.8)]"
+                strokeWidth="2"
               />
               <circle
                 cx={currentPoint.x}
                 cy={currentPoint.y}
-                r="2.5"
+                r="2"
                 fill="#FFFFFF"
               />
             </>
           )}
         </svg>
 
-        {/* Tooltip Dinâmico conforme Item 14 (Data, Hora, Patrimônio, Rentabilidade, BTC, LTC) */}
+        {/* Tooltip Flutuante Conforme Item 15 */}
         {isHovered && currentPoint && (
           <div
-            className="absolute z-20 pointer-events-none bg-[#0B172A]/95 backdrop-blur-xl border border-white/10 rounded-xl p-3 shadow-financial-elevated w-52 sm:w-56 transition-all duration-75"
+            className="absolute z-20 pointer-events-none bg-[#0B172A]/95 backdrop-blur-xl border border-white/10 rounded-xl p-3 shadow-financial-elevated w-52 sm:w-56"
             style={{
               left: `${Math.min(Math.max(currentPoint.x - 110, 10), dimensions.width - 230)}px`,
               top: `${Math.max(currentPoint.y - 145, 10)}px`,
             }}
           >
-            {/* Data e Hora */}
             <div className="flex items-center justify-between text-[10px] font-mono text-text-tertiary border-b border-white/[0.06] pb-1.5 mb-2">
               <span>{currentPoint.data.displayDate}</span>
               <span>{currentPoint.data.displayTime}</span>
             </div>
 
-            {/* Patrimônio e Rentabilidade */}
-            <div className="space-y-1 mb-2">
-              <div className="text-[11px] text-text-secondary">Patrimônio:</div>
-              <div className="text-sm font-bold text-text-primary tabular-numbers flex items-center justify-between">
-                <span>{formatCurrency(currentPoint.data.totalBalanceBrl)}</span>
-                <span className={`text-[11px] font-mono ${currentPoint.data.profitPercentage >= 0 ? 'text-positive' : 'text-negative'}`}>
+            <div className="space-y-1 mb-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-text-secondary">Patrimônio:</span>
+                <span className="font-bold text-text-primary tabular-nums font-mono">
+                  {formatBRL(currentPoint.data.totalBalanceBrl, hideValues)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-text-secondary">Variação:</span>
+                <span className={`font-mono font-semibold ${currentPoint.data.profitPercentage >= 0 ? 'text-positive' : 'text-negative'}`}>
                   {currentPoint.data.profitPercentage >= 0 ? '+' : ''}{currentPoint.data.profitPercentage.toFixed(2)}%
                 </span>
               </div>
             </div>
 
-            {/* Detalhe BTC e LTC */}
             <div className="pt-1.5 border-t border-white/[0.06] grid grid-cols-2 gap-2 text-[11px] font-mono">
               <div>
-                <span className="text-crypto-bitcoin text-[10px] block">BTC Cotação</span>
+                <span className="text-crypto-bitcoin text-[10px] block">BTC</span>
                 <span className="text-text-primary">
-                  {hideValues ? '••••' : `R$ ${currentPoint.data.btcPrice.toLocaleString('pt-BR')}`}
+                  {hideValues ? '••••' : `R$ ${Math.round(currentPoint.data.btcPrice).toLocaleString('pt-BR')}`}
                 </span>
               </div>
               <div>
-                <span className="text-crypto-litecoin text-[10px] block">LTC Cotação</span>
+                <span className="text-crypto-litecoin text-[10px] block">LTC</span>
                 <span className="text-text-primary">
-                  {hideValues ? '••••' : `R$ ${currentPoint.data.ltcPrice.toLocaleString('pt-BR')}`}
+                  {hideValues ? '••••' : `R$ ${currentPoint.data.ltcPrice.toFixed(2).replace('.', ',')}`}
                 </span>
               </div>
             </div>
