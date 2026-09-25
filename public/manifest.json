@@ -1,0 +1,21 @@
+{
+  "short_name": "Cure Capital",
+  "name": "Cure Capital — Gestão de Ativos Digitais",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/dashboard",
+  "background_color": "#07111F",
+  "theme_color": "#07111F",
+  "display": "standalone",
+  "orientation": "portrait"
+}
