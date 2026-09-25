@@ -44,7 +44,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     amountFiatBrl: 284.32,
     status: 'completed',
     createdAt: '24/09/2026 18:30',
-    reference: 'YIELD-SET26-D24',
+    reference: 'CUR-260924-Y84D12',
     description: 'Rendimento diário apurado sobre alocação patrimonial',
   },
   {
@@ -52,12 +52,12 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     userId: 'usr-rafael',
     type: 'deposit',
     asset: 'LTC',
-    amount: 9.527,
+    amount: 9.469,
     amountFiatBrl: 5000.00,
     status: 'completed',
     createdAt: '22/09/2026 14:15',
-    reference: 'DEP-LTC-5000',
-    description: 'Aporte de custódia em Litecoin via carteira fria',
+    reference: 'CUR-260922-L89A74',
+    description: 'Aporte de capital em Litecoin via carteira fria',
     txHash: '9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b',
   },
   {
@@ -69,8 +69,8 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     amountFiatBrl: 124.90,
     status: 'completed',
     createdAt: '19/09/2026 11:02',
-    reference: 'COM-AF-8201',
-    description: 'Comissão de indicação — Thiago Miranda (Tier 1)',
+    reference: 'CUR-260919-C12B90',
+    description: 'Comissão de indicação patrimonial — Thiago Miranda',
   },
   {
     id: 'tx-97510',
@@ -81,8 +81,8 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     amountFiatBrl: -800.00,
     status: 'completed',
     createdAt: '17/09/2026 09:40',
-    reference: 'SAQ-PIX-491',
-    description: 'Resgate para conta bancária via TED/PIX',
+    reference: 'CUR-260917-W80P41',
+    description: 'Resgate de liquidez para conta bancária via TED/PIX',
   },
   {
     id: 'tx-97120',
@@ -93,7 +93,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     amountFiatBrl: 312.45,
     status: 'completed',
     createdAt: '15/09/2026 18:30',
-    reference: 'YIELD-SET26-D15',
+    reference: 'CUR-260915-Y31K45',
     description: 'Rendimento diário apurado sobre alocação patrimonial',
   },
   {
@@ -105,7 +105,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     amountFiatBrl: 10850.00,
     status: 'completed',
     createdAt: '10/09/2026 16:55',
-    reference: 'DEP-BTC-10850',
+    reference: 'CUR-260910-B02E50',
     description: 'Aporte institucional Bitcoin via segregação patrimonial',
     txHash: 'e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9a8b7c6d5',
   },
@@ -118,8 +118,8 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     amountFiatBrl: 345.80,
     status: 'completed',
     createdAt: '05/09/2026 12:20',
-    reference: 'COM-AF-7910',
-    description: 'Comissão de indicação — Fernanda Vasconcelos (Tier 2)',
+    reference: 'CUR-260905-C34F80',
+    description: 'Comissão de indicação patrimonial — Fernanda Vasconcelos',
   },
   {
     id: 'tx-96010',
@@ -130,10 +130,69 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     amountFiatBrl: 7977.26,
     status: 'completed',
     createdAt: '01/09/2026 10:11',
-    reference: 'CONV-BRL-LTC',
+    reference: 'CUR-260901-K15L20',
     description: 'Rebalanceamento de carteira BRL para LTC',
   },
 ];
+
+export const MOCK_CONTRIBUTIONS = [
+  {
+    id: 'dep-01',
+    date: '22/09/2026',
+    asset: 'LTC' as const,
+    amountFiat: 5000.00,
+    amountCrypto: 9.469,
+    priceAtDeposit: 528.04,
+    status: 'completed' as const,
+    reference: 'CUR-260922-L89A74',
+    method: 'Aporte Carteira Fria',
+  },
+  {
+    id: 'dep-02',
+    date: '10/09/2026',
+    asset: 'BTC' as const,
+    amountFiat: 10850.00,
+    amountCrypto: 0.025,
+    priceAtDeposit: 434000.00,
+    status: 'completed' as const,
+    reference: 'CUR-260910-B02E50',
+    method: 'Custódia Institucional Segregada',
+  },
+  {
+    id: 'dep-03',
+    date: '15/07/2026',
+    asset: 'LTC' as const,
+    amountFiat: 12000.00,
+    amountCrypto: 24.896,
+    priceAtDeposit: 482.00,
+    status: 'completed' as const,
+    reference: 'CUR-260715-L24B10',
+    method: 'Aporte Bancário Estruturado',
+  },
+  {
+    id: 'dep-04',
+    date: '28/04/2026',
+    asset: 'LTC' as const,
+    amountFiat: 11200.00,
+    amountCrypto: 23.955,
+    priceAtDeposit: 467.50,
+    status: 'completed' as const,
+    reference: 'CUR-260428-L23M95',
+    method: 'Aporte de Liquidez Primária',
+  },
+  {
+    id: 'dep-05',
+    date: '15/01/2026',
+    asset: 'BTC' as const,
+    amountFiat: 6700.00,
+    amountCrypto: 0.01870,
+    priceAtDeposit: 358288.77,
+    status: 'completed' as const,
+    reference: 'CUR-260115-B18A70',
+    method: 'Aporte Inaugural de Custódia',
+  },
+];
+
 
 // Dados históricos do gráfico com pontos estruturados para cada filtro
 export const MOCK_CHART_TIMEFRAMES: Record<string, PortfolioHistoryPoint[]> = {
@@ -299,3 +358,150 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
     device: 'MacBook Pro macOS 15.1 Safari',
   },
 ];
+
+// Dados históricos para gráfico de 2 linhas em /investments (Capital Aportado vs Patrimônio)
+export const MOCK_INVESTMENT_PERFORMANCE: Record<string, {
+  timestamp: string;
+  displayDate: string;
+  investedCapital: number;
+  portfolioValue: number;
+  profitBrl: number;
+  profitPercentage: number;
+}[]> = {
+  '30D': [
+    { timestamp: '2026-08-26', displayDate: '26 AGO 2026', investedCapital: 40750.00, portfolioValue: 47820.00, profitBrl: 7070.00, profitPercentage: 17.35 },
+    { timestamp: '2026-09-02', displayDate: '02 SET 2026', investedCapital: 40750.00, portfolioValue: 48940.00, profitBrl: 8190.00, profitPercentage: 20.09 },
+    { timestamp: '2026-09-10', displayDate: '10 SET 2026', investedCapital: 40750.00, portfolioValue: 49810.00, profitBrl: 9060.00, profitPercentage: 22.23 },
+    { timestamp: '2026-09-15', displayDate: '15 SET 2026', investedCapital: 44000.00, portfolioValue: 51260.32, profitBrl: 7260.32, profitPercentage: 16.50 },
+    { timestamp: '2026-09-22', displayDate: '22 SET 2026', investedCapital: 45750.00, portfolioValue: 53890.00, profitBrl: 8140.00, profitPercentage: 17.79 },
+    { timestamp: '2026-09-25', displayDate: '25 SET 2026', investedCapital: 45750.00, portfolioValue: 54351.85, profitBrl: 8601.85, profitPercentage: 18.80 },
+  ],
+  '3M': [
+    { timestamp: '2026-06-25', displayDate: '25 JUN 2026', investedCapital: 33750.00, portfolioValue: 37920.00, profitBrl: 4170.00, profitPercentage: 12.35 },
+    { timestamp: '2026-07-15', displayDate: '15 JUL 2026', investedCapital: 38750.00, portfolioValue: 44100.00, profitBrl: 5350.00, profitPercentage: 13.80 },
+    { timestamp: '2026-08-15', displayDate: '15 AGO 2026', investedCapital: 40750.00, portfolioValue: 47200.00, profitBrl: 6450.00, profitPercentage: 15.82 },
+    { timestamp: '2026-09-25', displayDate: '25 SET 2026', investedCapital: 45750.00, portfolioValue: 54351.85, profitBrl: 8601.85, profitPercentage: 18.80 },
+  ],
+  '6M': [
+    { timestamp: '2026-03-25', displayDate: '25 MAR 2026', investedCapital: 22550.00, portfolioValue: 24800.00, profitBrl: 2250.00, profitPercentage: 9.97 },
+    { timestamp: '2026-04-28', displayDate: '28 ABR 2026', investedCapital: 27550.00, portfolioValue: 30940.00, profitBrl: 3390.00, profitPercentage: 12.30 },
+    { timestamp: '2026-06-25', displayDate: '25 JUN 2026', investedCapital: 33750.00, portfolioValue: 37920.00, profitBrl: 4170.00, profitPercentage: 12.35 },
+    { timestamp: '2026-08-15', displayDate: '15 AGO 2026', investedCapital: 40750.00, portfolioValue: 47200.00, profitBrl: 6450.00, profitPercentage: 15.82 },
+    { timestamp: '2026-09-25', displayDate: '25 SET 2026', investedCapital: 45750.00, portfolioValue: 54351.85, profitBrl: 8601.85, profitPercentage: 18.80 },
+  ],
+  '1A': [
+    { timestamp: '2025-09-25', displayDate: '25 SET 2025', investedCapital: 15000.00, portfolioValue: 15450.00, profitBrl: 450.00, profitPercentage: 3.00 },
+    { timestamp: '2026-01-15', displayDate: '15 JAN 2026', investedCapital: 21700.00, portfolioValue: 23900.00, profitBrl: 2200.00, profitPercentage: 10.13 },
+    { timestamp: '2026-04-28', displayDate: '28 ABR 2026', investedCapital: 27550.00, portfolioValue: 30940.00, profitBrl: 3390.00, profitPercentage: 12.30 },
+    { timestamp: '2026-07-15', displayDate: '15 JUL 2026', investedCapital: 38750.00, portfolioValue: 44100.00, profitBrl: 5350.00, profitPercentage: 13.80 },
+    { timestamp: '2026-09-25', displayDate: '25 SET 2026', investedCapital: 45750.00, portfolioValue: 54351.85, profitBrl: 8601.85, profitPercentage: 18.80 },
+  ],
+  'ALL': [
+    { timestamp: '2025-01-15', displayDate: '15 JAN 2025', investedCapital: 10000.00, portfolioValue: 10000.00, profitBrl: 0.00, profitPercentage: 0.00 },
+    { timestamp: '2025-06-15', displayDate: '15 JUN 2025', investedCapital: 15000.00, portfolioValue: 15800.00, profitBrl: 800.00, profitPercentage: 5.33 },
+    { timestamp: '2026-01-15', displayDate: '15 JAN 2026', investedCapital: 21700.00, portfolioValue: 23900.00, profitBrl: 2200.00, profitPercentage: 10.13 },
+    { timestamp: '2026-05-15', displayDate: '15 MAI 2026', investedCapital: 33750.00, portfolioValue: 38200.00, profitBrl: 4450.00, profitPercentage: 13.18 },
+    { timestamp: '2026-09-25', displayDate: '25 SET 2026', investedCapital: 45750.00, portfolioValue: 54351.85, profitBrl: 8601.85, profitPercentage: 18.80 },
+  ]
+};
+
+// Histórico de preços para ativos individuais com filtros de período
+export const MOCK_ASSET_CHARTS: Record<'BTC' | 'LTC', Record<string, { timestamp: string; displayDate: string; price: number }[]>> = {
+  BTC: {
+    '24H': [
+      { timestamp: '00:00', displayDate: '00:00', price: 432100 },
+      { timestamp: '04:00', displayDate: '04:00', price: 433400 },
+      { timestamp: '08:00', displayDate: '08:00', price: 434800 },
+      { timestamp: '12:00', displayDate: '12:00', price: 436200 },
+      { timestamp: '16:00', displayDate: '16:00', price: 435900 },
+      { timestamp: '20:00', displayDate: '20:00', price: 437100 },
+      { timestamp: 'Agora', displayDate: 'Agora', price: 437820.42 },
+    ],
+    '7D': [
+      { timestamp: '18 SET', displayDate: '18 SET', price: 429800 },
+      { timestamp: '19 SET', displayDate: '19 SET', price: 431200 },
+      { timestamp: '20 SET', displayDate: '20 SET', price: 432500 },
+      { timestamp: '21 SET', displayDate: '21 SET', price: 434100 },
+      { timestamp: '22 SET', displayDate: '22 SET', price: 435800 },
+      { timestamp: '23 SET', displayDate: '23 SET', price: 436900 },
+      { timestamp: '24 SET', displayDate: '24 SET', price: 437200 },
+      { timestamp: '25 SET', displayDate: '25 SET', price: 437820.42 },
+    ],
+    '30D': [
+      { timestamp: '26 AGO', displayDate: '26 AGO', price: 412000 },
+      { timestamp: '02 SET', displayDate: '02 SET', price: 418500 },
+      { timestamp: '09 SET', displayDate: '09 SET', price: 424200 },
+      { timestamp: '16 SET', displayDate: '16 SET', price: 431900 },
+      { timestamp: '23 SET', displayDate: '23 SET', price: 436800 },
+      { timestamp: '25 SET', displayDate: '25 SET', price: 437820.42 },
+    ],
+    '3M': [
+      { timestamp: '25 JUN', displayDate: '25 JUN', price: 395000 },
+      { timestamp: '25 JUL', displayDate: '25 JUL', price: 408000 },
+      { timestamp: '25 AGO', displayDate: '25 AGO', price: 421000 },
+      { timestamp: '25 SET', displayDate: '25 SET', price: 437820.42 },
+    ],
+    '1A': [
+      { timestamp: 'SET 25', displayDate: 'SET 2025', price: 345000 },
+      { timestamp: 'DEZ 25', displayDate: 'DEZ 2025', price: 368000 },
+      { timestamp: 'MAR 26', displayDate: 'MAR 2026', price: 392000 },
+      { timestamp: 'JUN 26', displayDate: 'JUN 2026', price: 415000 },
+      { timestamp: 'SET 26', displayDate: 'SET 2026', price: 437820.42 },
+    ],
+    'ALL': [
+      { timestamp: 'JAN 25', displayDate: 'JAN 2025', price: 298000 },
+      { timestamp: 'JUL 25', displayDate: 'JUL 2025', price: 335000 },
+      { timestamp: 'JAN 26', displayDate: 'JAN 2026', price: 375000 },
+      { timestamp: 'SET 26', displayDate: 'SET 2026', price: 437820.42 },
+    ]
+  },
+  LTC: {
+    '24H': [
+      { timestamp: '00:00', displayDate: '00:00', price: 519.10 },
+      { timestamp: '04:00', displayDate: '04:00', price: 520.40 },
+      { timestamp: '08:00', displayDate: '08:00', price: 522.00 },
+      { timestamp: '12:00', displayDate: '12:00', price: 524.30 },
+      { timestamp: '16:00', displayDate: '16:00', price: 525.80 },
+      { timestamp: '20:00', displayDate: '20:00', price: 527.10 },
+      { timestamp: 'Agora', displayDate: 'Agora', price: 528.04 },
+    ],
+    '7D': [
+      { timestamp: '18 SET', displayDate: '18 SET', price: 512.40 },
+      { timestamp: '19 SET', displayDate: '19 SET', price: 514.80 },
+      { timestamp: '20 SET', displayDate: '20 SET', price: 516.90 },
+      { timestamp: '21 SET', displayDate: '21 SET', price: 519.20 },
+      { timestamp: '22 SET', displayDate: '22 SET', price: 522.40 },
+      { timestamp: '23 SET', displayDate: '23 SET', price: 524.80 },
+      { timestamp: '24 SET', displayDate: '24 SET', price: 526.50 },
+      { timestamp: '25 SET', displayDate: '25 SET', price: 528.04 },
+    ],
+    '30D': [
+      { timestamp: '26 AGO', displayDate: '26 AGO', price: 494.00 },
+      { timestamp: '02 SET', displayDate: '02 SET', price: 501.20 },
+      { timestamp: '09 SET', displayDate: '09 SET', price: 508.40 },
+      { timestamp: '16 SET', displayDate: '16 SET', price: 517.10 },
+      { timestamp: '23 SET', displayDate: '23 SET', price: 524.50 },
+      { timestamp: '25 SET', displayDate: '25 SET', price: 528.04 },
+    ],
+    '3M': [
+      { timestamp: '25 JUN', displayDate: '25 JUN', price: 468.00 },
+      { timestamp: '25 JUL', displayDate: '25 JUL', price: 485.00 },
+      { timestamp: '25 AGO', displayDate: '25 AGO', price: 502.00 },
+      { timestamp: '25 SET', displayDate: '25 SET', price: 528.04 },
+    ],
+    '1A': [
+      { timestamp: 'SET 25', displayDate: 'SET 2025', price: 412.00 },
+      { timestamp: 'DEZ 25', displayDate: 'DEZ 2025', price: 435.00 },
+      { timestamp: 'MAR 26', displayDate: 'MAR 2026', price: 458.00 },
+      { timestamp: 'JUN 26', displayDate: 'JUN 2026', price: 489.00 },
+      { timestamp: 'SET 26', displayDate: 'SET 2026', price: 528.04 },
+    ],
+    'ALL': [
+      { timestamp: 'JAN 25', displayDate: 'JAN 2025', price: 360.00 },
+      { timestamp: 'JUL 25', displayDate: 'JUL 2025', price: 395.00 },
+      { timestamp: 'JAN 26', displayDate: 'JAN 2026', price: 440.00 },
+      { timestamp: 'SET 26', displayDate: 'SET 2026', price: 528.04 },
+    ]
+  }
+};
+

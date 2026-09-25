@@ -6,6 +6,7 @@ import { AppLayout } from './components/layout/AppLayout';
 // Páginas
 import { Dashboard } from './pages/Dashboard';
 import { Wallet } from './pages/Wallet';
+import { AssetDetail } from './pages/AssetDetail';
 import { Investments } from './pages/Investments';
 import { Market } from './pages/Market';
 import { Transactions } from './pages/Transactions';
@@ -31,6 +32,7 @@ export const App: React.FC = () => {
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/wallet" element={<Wallet />} />
+            <Route path="/wallet/:symbol" element={<AssetDetail />} />
             <Route path="/investments" element={<Investments />} />
             <Route path="/market" element={<Market />} />
             <Route path="/transactions" element={<Transactions />} />

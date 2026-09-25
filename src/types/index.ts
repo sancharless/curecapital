@@ -40,6 +40,59 @@ export interface MarketQuote {
   lastUpdated: Date;
 }
 
+export interface AssetHolding {
+  symbol: 'BTC' | 'LTC';
+  name: string;
+  quantity: number;
+  averageCost: number;
+  currentPrice: number;
+  currentValue: number;
+  investedValue: number;
+  profitBrl: number;
+  profitPercent: number;
+  sharePercent: number;
+  dailyChangePercent: number;
+  sparkline: number[];
+  firstDepositDate: string;
+  lastDepositDate: string;
+}
+
+export interface InvestmentPosition {
+  asset: 'BTC' | 'LTC';
+  name: string;
+  symbol: string;
+  quantity: number;
+  averageCost: number;
+  allocatedBrl: number;
+  currentValueBrl: number;
+  profitBrl: number;
+  profitPercent: number;
+  sharePercent: number;
+  firstDepositDate: string;
+  lastDepositDate: string;
+}
+
+export interface ContributionRecord {
+  id: string;
+  date: string;
+  asset: 'BTC' | 'LTC';
+  amountFiat: number;
+  amountCrypto: number;
+  priceAtDeposit: number;
+  status: 'completed' | 'processing' | 'pending' | 'cancelled';
+  reference: string;
+  method: string;
+}
+
+export interface InvestmentPerformancePoint {
+  timestamp: string;
+  displayDate: string;
+  investedCapital: number;
+  portfolioValue: number;
+  profitBrl: number;
+  profitPercentage: number;
+}
+
 export interface PortfolioHistoryPoint {
   timestamp: string; // Ex: '2026-09-25T10:42:00'
   displayDate: string; // Ex: '25 SET 2026'
