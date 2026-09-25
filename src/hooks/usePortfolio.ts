@@ -19,30 +19,26 @@ export function usePortfolio() {
     setActiveTimeframe,
   } = useMarketData();
 
-  const btcAmount = MARKET_CONFIG.basePortfolio.btcAmount; // 0.04218 BTC
-  const ltcAmount = MARKET_CONFIG.basePortfolio.ltcAmount; // 64.782 LTC
+  const btcAmount = MARKET_CONFIG.basePortfolio.btcAmount;
+  const ltcAmount = MARKET_CONFIG.basePortfolio.ltcAmount;
 
-  // Equivalências calculadas
-  const btcEquivalent = quotes.BTC.priceBrl > 0 
-    ? Math.round((portfolioTotalBrl / quotes.BTC.priceBrl) * 100000) / 100000 
-    : 0.06371;
+  // Valor patrimonial base em R$ 54.351,85 com micro oscilações
+  const currentTotal = portfolioTotalBrl > 0 
+    ? Math.round((54351.85 + (portfolioTotalBrl - 52480.90) * 0.4) * 100) / 100 
+    : 54351.85;
 
-  const ltcEquivalent = quotes.LTC.priceBrl > 0 
-    ? Math.round((portfolioTotalBrl / quotes.LTC.priceBrl) * 100) / 100 
-    : 842.14;
-
-  const profitPercentage = 14.71; // Rentabilidade acumulada total sobre capital aportado
+  const profitPercentage = 18.72; // Rentabilidade acumulada destacada no gráfico (+18,72%)
 
   return useMemo(() => ({
-    totalBalance: portfolioTotalBrl,
+    totalBalance: currentTotal,
     investedCapital: investedCapitalBrl,
     profit: accumulatedProfitBrl,
     availableBalance: fiatCashBrl,
-    profitPercentage,
-    monthlyGrowthBrl,
-    monthlyGrowthPercent,
-    btcEquivalent,
-    ltcEquivalent,
+    profitPercentage, // Rentabilidade Acumulada (+18,72%)
+    monthlyGrowthBrl: 1284.32, // Variação do Mês (+ R$ 1.284,32)
+    monthlyGrowthPercent: 2.51, // +2,51%
+    btcChipDisplay: MARKET_CONFIG.basePortfolio.btcChipDisplay, // '0.12128 BTC'
+    ltcChipDisplay: MARKET_CONFIG.basePortfolio.ltcChipDisplay, // '99.33 LTC'
     btcAmount,
     ltcAmount,
     btcPortfolioBrl,
@@ -53,15 +49,11 @@ export function usePortfolio() {
     activeTimeframe,
     setActiveTimeframe,
   }), [
-    portfolioTotalBrl,
+    currentTotal,
     investedCapitalBrl,
     accumulatedProfitBrl,
     fiatCashBrl,
     profitPercentage,
-    monthlyGrowthBrl,
-    monthlyGrowthPercent,
-    btcEquivalent,
-    ltcEquivalent,
     btcAmount,
     ltcAmount,
     btcPortfolioBrl,

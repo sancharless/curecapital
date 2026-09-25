@@ -24,20 +24,18 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="relative min-h-[100dvh] bg-[#07111F] text-text-primary flex">
-      {/* Background discreto com radial gradient sutil no topo (Item 89) */}
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_80%_40%_at_50%_-10%,rgba(37,99,235,0.08),transparent)]" />
-      <div className="ambient-glow" />
-      <div className="ambient-glow-secondary" />
+      {/* Background sutil com radial gradient no topo (Item 36) */}
+      <div className="ambient-top-glow" />
 
-      {/* Banner de Status Offline Discreto (Item 55) */}
+      {/* Banner de Status Offline Discreto */}
       {!isOnline && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-alert/90 backdrop-blur-md text-bg-primary py-1.5 px-4 text-center text-xs font-semibold flex items-center justify-center gap-2">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-alert/90 backdrop-blur-md text-bg-primary py-1 px-4 text-center text-xs font-semibold flex items-center justify-center gap-2">
           <WifiOff className="w-3.5 h-3.5" />
           <span>Você está offline. Exibindo os últimos dados em cache local.</span>
         </div>
       )}
 
-      {/* Sidebar Desktop (260px) */}
+      {/* Sidebar Desktop (220px - Item 26) */}
       <Sidebar />
 
       {/* Área Central de Conteúdo */}
@@ -45,10 +43,10 @@ export const AppLayout: React.FC = () => {
         <Header />
 
         <main 
-          className="flex-1 px-4 sm:px-6 lg:px-8 py-5 sm:py-6 lg:py-8 w-full mx-auto"
+          className="flex-1 px-4 sm:px-6 lg:px-7 py-3.5 sm:py-4.5 lg:py-5 w-full mx-auto"
           style={{
-            // Compensação para bottom-nav no mobile com safe-area (Item 97)
-            paddingBottom: 'max(96px, calc(env(safe-area-inset-bottom) + 80px))'
+            // Compensação para bottom-nav no mobile com safe-area
+            paddingBottom: 'max(92px, calc(env(safe-area-inset-bottom) + 76px))'
           }}
         >
           <Outlet />

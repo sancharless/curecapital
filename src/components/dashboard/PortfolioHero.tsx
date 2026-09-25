@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, TrendingUp, PlusCircle, ArrowDownLeft, Shield, Info } from 'lucide-react';
-import { Card } from '../ui/Card';
+import { Eye, EyeOff, PlusCircle, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
@@ -16,8 +15,8 @@ export const PortfolioHero: React.FC = () => {
     totalBalance,
     monthlyGrowthBrl,
     monthlyGrowthPercent,
-    btcEquivalent,
-    ltcEquivalent,
+    btcChipDisplay,
+    ltcChipDisplay,
     availableBalance,
   } = usePortfolio();
 
@@ -44,8 +43,8 @@ export const PortfolioHero: React.FC = () => {
       setIsLoading(false);
       setIsDepositOpen(false);
       setDepositAmount('');
-      toast.success('Ordem de aporte simulada', 'Registro de custódia vinculado com sucesso');
-    }, 900);
+      toast.success('Aporte simulado', 'Recursos alocados com sucesso no ledger');
+    }, 800);
   };
 
   const handleWithdrawSubmit = (e: React.FormEvent) => {
@@ -56,127 +55,141 @@ export const PortfolioHero: React.FC = () => {
       setIsWithdrawOpen(false);
       setWithdrawAmount('');
       toast.success('Solicitação de saque enviada', 'Transferência em processamento para sua conta');
-    }, 900);
+    }, 800);
   };
 
   return (
     <>
-      {/* Card Principal: Degradê #0B172A → #0D1D34, Halo Azul discreto, Radius 24px */}
-      <div className="relative rounded-[24px] p-5 sm:p-7 md:p-8 bg-gradient-to-br from-[#0B172A] via-[#0C1A2F] to-[#0D1D34] border border-white/[0.06] shadow-financial-elevated overflow-hidden group">
-        {/* Halo azul discreto sem neon */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-blue/[0.07] rounded-full filter blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-brand-cyan/[0.04] rounded-full filter blur-3xl pointer-events-none" />
+      {/* 
+        Card Principal:
+        - Altura reduzida em 15-20% (Item 3)
+        - Radius 22px (Item 12)
+        - Background linear-gradient(145deg, rgba(15,31,55,.96), rgba(11,25,45,.96)) (Item 13)
+        - Iluminação azul extremamente sutil no canto superior direito blur 100px (Item 14)
+        - Border 1px solid rgba(255,255,255,0.055)
+      */}
+      <div className="relative rounded-[22px] px-5 py-4 sm:px-6 sm:py-5 md:px-7 md:py-5.5 bg-gradient-to-br from-[#0F1F37]/95 to-[#0B192D]/95 border border-white/[0.055] shadow-financial-glass overflow-hidden">
+        {/* Iluminação azul quase imperceptível (Item 14) */}
+        <div className="absolute -top-16 -right-16 w-80 h-80 bg-brand-blue/[0.08] rounded-full filter blur-[100px] pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col justify-between gap-5 sm:gap-6">
-          {/* Topo do Hero: Rótulo e Botão Ocultar Valores */}
+        <div className="relative z-10 flex flex-col justify-between gap-3.5 sm:gap-4.5">
+          {/* Linha Superior: Rótulo e Privacy Button (Ghost action - Item 11) */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] sm:text-xs font-mono font-medium uppercase tracking-wider text-text-secondary">
-                Patrimônio Total
-              </span>
-              <FinancialTooltip content="Soma consolidada de ativos sob custódia e moeda fiat">
-                <Info className="w-3.5 h-3.5 text-text-tertiary hover:text-text-secondary cursor-pointer" />
-              </FinancialTooltip>
-            </div>
+            <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-text-tertiary">
+              Patrimônio Total
+            </span>
 
+            {/* Privacy Button: ghost action discreta com border suave (Item 11) */}
             <button
               onClick={handleTogglePrivacy}
               aria-label={hideValues ? 'Exibir valores' : 'Ocultar valores'}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer border border-white/[0.06]"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium text-text-secondary hover:text-text-primary bg-transparent hover:bg-white/[0.03] transition-colors cursor-pointer border border-white/[0.06]"
             >
-              {hideValues ? <EyeOff className="w-3.5 h-3.5 text-brand-cyan" /> : <Eye className="w-3.5 h-3.5" />}
+              {hideValues ? <EyeOff className="w-3.5 h-3.5 text-brand-cyan" /> : <Eye className="w-3.5 h-3.5 text-text-secondary" />}
               <span className="hidden xs:inline">{hideValues ? 'Exibir valores' : 'Ocultar valores'}</span>
             </button>
           </div>
 
-          {/* Valor Patrimonial com Contador Animado e Variação Positiva */}
-          <div className="space-y-2.5">
-            <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-4 flex-wrap">
-              {/* Valor Principal com font-size 48-58px desktop / 32-40px mobile e sem quebra */}
+          {/* Linha Central: Valor em Destaque + Variação do Mês + Equivalências BTC/LTC */}
+          <div className="flex flex-col lg:flex-row lg:items-baseline justify-between gap-3 lg:gap-6 flex-wrap">
+            <div className="flex items-baseline gap-3 flex-wrap">
+              {/* Valor do Patrimônio: font-weight 600-650, letter-spacing -0.03em (Item 4) */}
               <h1 
-                className="font-bold tracking-tight text-text-primary tabular-nums whitespace-nowrap leading-none select-all"
-                style={{ fontSize: 'clamp(32px, 5.2vw, 56px)' }}
+                className="font-semibold tracking-[-0.03em] text-[#F5F7FB] tabular-nums whitespace-nowrap leading-none select-all"
+                style={{ fontSize: 'clamp(30px, 4.2vw, 48px)', fontWeight: 620 }}
               >
                 <AnimatedNumber
                   value={totalBalance}
-                  startFrom={51920.00} // Começa de R$ 51.920,00 simulando atualização contábil real
-                  duration={900}
+                  startFrom={51920.00}
+                  duration={850}
                   privacyMode={hideValues}
                 />
               </h1>
 
-              {/* Variação Positiva com TrendingUp e Verde #19C37D */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-positive/10 border border-positive/25 text-positive text-xs font-semibold self-start sm:self-auto">
-                <TrendingUp className="w-3.5 h-3.5 shrink-0 stroke-[2.2]" />
-                <span className="font-mono tabular-nums">
+              {/* Variação do Mês Refinada: ↗ + R$ 1.284,32 +2,51% este mês (Item 5 e 6) */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[rgba(25,195,125,.08)] border border-[rgba(25,195,125,.18)] text-positive text-xs font-medium">
+                <span className="text-positive font-bold">↗</span>
+                <span className="font-mono tabular-nums font-semibold">
                   + {hideValues ? '••••' : formatBRL(monthlyGrowthBrl).replace('R$ ', 'R$ ')}
                 </span>
-                <span className="font-mono tabular-nums">
-                  (+{monthlyGrowthPercent.toFixed(2)}%)
+                <span className="font-mono tabular-nums font-semibold">
+                  +{monthlyGrowthPercent.toFixed(2)}%
                 </span>
-                <span className="text-[10px] text-text-tertiary font-normal hidden sm:inline ml-0.5">
+                <span className="text-[11px] text-text-tertiary font-normal">
                   este mês
                 </span>
               </div>
             </div>
 
-            {/* Conversão BTC / LTC com Tooltip Explicativo (Item 9) */}
-            <FinancialTooltip content="Valor estimado considerando cotação média de mercado em tempo real">
-              <div className="inline-flex items-center gap-3 sm:gap-4 text-xs text-text-secondary cursor-help pt-1 flex-wrap">
-                {/* Bitcoin Dourado */}
-                <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded-full bg-crypto-bitcoin/20 border border-crypto-bitcoin/40 flex items-center justify-center text-crypto-bitcoin text-[10px] font-bold">
+            {/* Asset Chips: BTC e LTC com Label "Equivalência estimada" (Item 7 e 8) */}
+            <div className="flex items-center gap-2 pt-0.5 text-xs flex-wrap">
+              <span className="text-[11px] text-text-tertiary mr-1 hidden sm:inline">
+                Equivalência estimada:
+              </span>
+
+              {/* BTC Chip */}
+              <FinancialTooltip content="Equivalência estimada em Bitcoin na cotação média de mercado">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(245,166,35,.07)] border border-[rgba(245,166,35,.15)] cursor-help">
+                  <span className="w-3.5 h-3.5 rounded-full bg-crypto-bitcoin/20 text-crypto-bitcoin text-[10px] font-bold flex items-center justify-center">
                     ₿
-                  </div>
-                  <span className="font-mono text-text-primary font-medium">
-                    {hideValues ? '•••• BTC' : `≈ ${btcEquivalent.toFixed(5)} BTC`}
+                  </span>
+                  <span className="font-mono text-text-primary text-[11px] font-medium">
+                    {hideValues ? '•••• BTC' : btcChipDisplay}
                   </span>
                 </div>
+              </FinancialTooltip>
 
-                <span className="text-white/20">•</span>
-
-                {/* Litecoin Prata */}
-                <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded-full bg-crypto-litecoin/20 border border-crypto-litecoin/40 flex items-center justify-center text-crypto-litecoin text-[10px] font-bold">
+              {/* LTC Chip */}
+              <FinancialTooltip content="Equivalência estimada em Litecoin na cotação média de mercado">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(184,194,204,.07)] border border-[rgba(184,194,204,.15)] cursor-help">
+                  <span className="w-3.5 h-3.5 rounded-full bg-crypto-litecoin/20 text-crypto-litecoin text-[10px] font-bold flex items-center justify-center">
                     Ł
-                  </div>
-                  <span className="font-mono text-text-primary font-medium">
-                    {hideValues ? '•••• LTC' : `≈ ${ltcEquivalent.toFixed(2)} LTC`}
+                  </span>
+                  <span className="font-mono text-text-primary text-[11px] font-medium">
+                    {hideValues ? '•••• LTC' : ltcChipDisplay}
                   </span>
                 </div>
-              </div>
-            </FinancialTooltip>
+              </FinancialTooltip>
+            </div>
           </div>
 
-          {/* Botões de Ação: "Aportar" primário (#2563EB) e "Saque" secundário (Item 4 e 37) */}
-          <div className="pt-2 sm:pt-3 border-t border-white/[0.06] flex items-center gap-3">
-            {/* No mobile: 2 colunas com altura mínima de 48px */}
-            <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
-              <Button
-                variant="primary"
-                size="md"
+          {/* Linha Inferior: Ações Aportar e Solicitar Saque (Item 9, 10, 37) */}
+          <div className="pt-2 sm:pt-2.5 border-t border-white/[0.05] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              {/* Botão Aportar: linear-gradient 135deg #2563EB → #2D6CF6 com shadow sutil (Item 9) */}
+              <button
                 onClick={() => setIsDepositOpen(true)}
-                leftIcon={<PlusCircle className="w-4 h-4" />}
-                className="h-12 px-6 shadow-glow-blue text-sm font-semibold flex-1 sm:flex-initial"
+                className="h-10 sm:h-10.5 px-5 sm:px-6 rounded-btn text-xs sm:text-sm font-semibold text-white
+                  bg-gradient-to-br from-[#2563EB] to-[#2D6CF6] hover:brightness-110 active:scale-[0.98]
+                  shadow-[0_8px_24px_rgba(37,99,235,0.18)] border border-blue-400/20
+                  inline-flex items-center justify-center gap-2 transition-all cursor-pointer flex-1 sm:flex-initial min-h-[44px]"
               >
-                Aportar
-              </Button>
+                <PlusCircle className="w-4 h-4 stroke-[2.2]" />
+                <span>Aportar</span>
+              </button>
 
-              <Button
-                variant="outline"
-                size="md"
+              {/* Botão Solicitar Saque: background rgba(255,255,255,.015), border rgba(255,255,255,.10) (Item 10) */}
+              <button
                 onClick={() => setIsWithdrawOpen(true)}
-                leftIcon={<ArrowDownLeft className="w-4 h-4 text-text-secondary" />}
-                className="h-12 px-6 text-sm font-medium flex-1 sm:flex-initial border-white/10 hover:border-white/20"
+                className="h-10 sm:h-10.5 px-5 sm:px-6 rounded-btn text-xs sm:text-sm font-medium text-text-secondary hover:text-text-primary
+                  bg-white/[0.015] hover:bg-white/[0.04] active:scale-[0.98]
+                  border border-white/10 hover:border-white/20
+                  inline-flex items-center justify-center gap-2 transition-all cursor-pointer flex-1 sm:flex-initial min-h-[44px]"
               >
-                Solicitar saque
-              </Button>
+                <ArrowDownLeft className="w-4 h-4 text-text-tertiary" />
+                <span>Solicitar saque</span>
+              </button>
+            </div>
+
+            <div className="hidden lg:flex items-center gap-2 text-[11px] text-text-tertiary font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-positive inline-block" />
+              <span>Custódia Segregada Ativa</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal de Aporte / Investimento */}
+      {/* Modal de Aporte */}
       <Modal
         isOpen={isDepositOpen}
         onClose={() => setIsDepositOpen(false)}
