@@ -12,6 +12,7 @@ import { Market } from './pages/Market';
 import { Transactions } from './pages/Transactions';
 import { Earnings } from './pages/Earnings';
 import { Affiliates } from './pages/Affiliates';
+import { AffiliateTerms } from './pages/AffiliateTerms';
 import { Reports } from './pages/Reports';
 import { Notifications } from './pages/Notifications';
 import { Settings } from './pages/Settings';
@@ -38,6 +39,7 @@ export const App: React.FC = () => {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/earnings" element={<Earnings />} />
             <Route path="/affiliates" element={<Affiliates />} />
+            <Route path="/affiliates/terms" element={<AffiliateTerms />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/settings" element={<Settings />} />
